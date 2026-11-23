@@ -97,7 +97,7 @@ Với Q01–Q04, nhóm đã có phương án phủ **D2, D3, D4, D5, D6** thông
 
 ### Cách tổ chức và trình bày code
 
-- Chạy JupyterLab từ thư mục gốc. Trong notebook, xác định thư mục gốc bằng `pathlib.Path` từ thư mục hiện tại hoặc cha của nó và kiểm tra thấy `environment.yml` trước khi dựng đường dẫn. Dùng `data/raw/` cho đầu vào, `data/processed/` cho đầu ra tạo lại được. Giữ đường dẫn máy cá nhân ngoài notebook.
+- Chạy Jupyter Notebook từ thư mục gốc. Trong notebook, xác định thư mục gốc bằng `pathlib.Path` từ thư mục hiện tại hoặc cha của nó và kiểm tra thấy `environment.yml` trước khi dựng đường dẫn. Dùng `data/raw/` cho đầu vào, `data/processed/` cho đầu ra tạo lại được. Giữ đường dẫn máy cá nhân ngoài notebook.
 - Đặt cell import, đường dẫn, seed và cấu hình ở đầu. Đặt tên biến/hàm Python bằng tiếng Anh, `snake_case`, và kèm đơn vị trong tên khi hữu ích như `sale_price_usd` hoặc `gross_sqft`. Đặt một chức năng rõ ràng cho mỗi cell; chỉ chuyển logic lặp lại sang `src/` khi đã có quy tắc chung được review.
 - Mỗi câu bắt đầu bằng **mã, chủ câu và câu hỏi**, sau đó trình bày động cơ và người dùng, mẫu và làm sạch, phương pháp và tiêu chí, kết quả, câu trả lời và giới hạn. Mỗi bước tiền xử lý có câu giải thích trước cell code. Mỗi kết quả chính ghi nhóm, giai đoạn, cỡ mẫu, giá trị và đơn vị.
 - Biểu đồ dùng tiếng Việt nhất quán, có tiêu đề, tên trục, đơn vị và chú giải khi có nhiều nhóm. Cố định thứ tự và màu borough giữa các notebook, dùng thang đo giống nhau khi so trực tiếp, ghi rõ trục log nếu dùng. Dưới biểu đồ ghi phạm vi, `n` và một nhận xét dựa trên số liệu. Mỗi câu có ít nhất hai biểu đồ phục vụ hai ý đọc khác nhau.
@@ -115,18 +115,24 @@ git status -sb
 
 Trong Codex Cloud, dùng checkout có sẵn tại `/workspace/Data-Science-Final-Project` và kiểm tra bằng `git branch --show-current`.
 
-### 2. Tạo môi trường
+### 2. Cài Miniconda và tạo môi trường
 
-Với Conda trên máy cá nhân, tên môi trường theo [`environment.yml`](environment.yml) là `min_ds-env`. Nếu đã có môi trường, dùng `conda env update -n min_ds-env -f environment.yml` để cập nhật.
+Tải bộ cài Miniconda phù hợp với hệ điều hành và kiến trúc máy. Sau khi cài, mở **Miniconda Prompt** hoặc **Anaconda Prompt** trên Windows, hoặc mở lại Terminal trên macOS/Linux. Chạy `conda --version` để kiểm tra trước khi vào thư mục gốc của repo. [Bộ cài Miniconda](https://repo.anaconda.com/miniconda/)
+
+Dùng Miniconda để tạo môi trường Python 3.11, rồi cài Jupyter Notebook và các thư viện phân tích bằng `pip` bên trong môi trường đó. Cách này dùng các phiên bản thư viện phân tích đã ghi trong cấu hình dự án, kể cả những phiên bản hiện thiếu trên kênh Conda `defaults`. [Cấu hình môi trường](environment.yml)
 
 ```bash
-conda env create -f environment.yml
+conda create -n min_ds-env python=3.11 pip
 conda activate min_ds-env
+python -m pip install notebook==7.0.8
+python -m pip install numpy==1.26.0 pandas==2.1.1 scipy==1.11.3 matplotlib==3.8.0 seaborn==0.13.0 scikit-learn==1.3.1
 python --version
-jupyter lab --version
+jupyter notebook --version
 ```
 
-Trên Codex Cloud đã thiết lập, kích hoạt `.venv` từ thư mục repo. Khi cần tạo lại, dùng script cài đặt trong cấu hình môi trường. Phương án Cloud đã được kiểm tra với Python 3.11.5, JupyterLab 4.0.7 và các phiên bản gói Python từ `environment.yml`.
+Nếu đã có môi trường `min_ds-env` chạy Python 3.11, bắt đầu từ `conda activate min_ds-env`. Những lần sau, chỉ cần kích hoạt lại môi trường khi mở terminal mới. Khi notebook có thêm yêu cầu, kiểm tra phiên bản tương ứng trong `environment.yml` trước khi cài gói bổ sung.
+
+Trên Codex Cloud đã thiết lập, dùng `.venv` có sẵn từ thư mục repo. Khi cần tạo lại, dùng script cài đặt trong cấu hình môi trường. Đoạn lệnh dưới đây áp dụng cho Cloud.
 
 ```bash
 source .venv/bin/activate
@@ -137,7 +143,7 @@ export MPLCONFIGDIR="$VIRTUAL_ENV/cache/matplotlib"
 export XDG_CACHE_HOME="$VIRTUAL_ENV/cache"
 mkdir -p "$JUPYTER_CONFIG_DIR" "$JUPYTER_RUNTIME_DIR" "$IPYTHONDIR" "$MPLCONFIGDIR"
 python --version
-jupyter lab --version
+jupyter notebook --version
 ```
 
 ### 3. Chuẩn bị dữ liệu
@@ -170,15 +176,19 @@ PY
 
 Đề bài yêu cầu giữ tệp dữ liệu lớn ngoài Git. Bản CSV khoảng 13 MB đã được theo dõi trong lịch sử của repo. Nhóm giữ nguyên hiện trạng trong lần cập nhật README và cần thống nhất với giảng viên cách bàn giao CSV sau khi xác minh điều khoản. Với tệp đầu vào tải thêm và đầu ra sinh lại, giữ theo quy tắc ignore của repo và chỉ commit mã, notebook, tài liệu hoặc mẫu nhỏ có lý do rõ ràng.
 
-### 4. Chạy notebook
+### 4. Mở Jupyter Notebook
+
+Từ thư mục gốc của repo, chạy lệnh sau trong terminal đã kích hoạt môi trường.
 
 ```bash
-jupyter lab --no-browser
+jupyter notebook
 ```
+
+Trên máy cá nhân, Jupyter sẽ mở trang danh sách tệp trong trình duyệt. Nếu trình duyệt chưa mở, dùng địa chỉ Jupyter in trong terminal. Trên Codex Cloud, dùng `jupyter notebook --no-browser` để khởi động từ terminal. Vào thư mục `notebooks/` để mở tệp.
 
 Chọn kernel **Python 3 (ipykernel)** thuộc môi trường vừa kích hoạt. Mở **01 → 02 → 03**, dùng **Restart Kernel and Run All Cells** cho từng notebook. Khi các bước triển khai đã có code, kiểm tra notebook 01 tạo đầu ra đã thống nhất, 02 đọc đầu ra đó để tái tạo các bảng và biểu đồ, và 03 tái tạo bảng CV, kết quả test cùng đồ thị phân tích lỗi. Nếu đổi kernel, xác nhận `sys.executable` là Python của môi trường dự án. Nếu lỗi đường dẫn, kiểm tra thư mục làm việc và đúng tên tệp trước khi sửa code.
 
-Hiện tại các notebook chỉ có đề mục Markdown. Kiểm tra môi trường đã đọc được CSV, tải được JupyterLab và chạy được một notebook tạm với pandas, biểu đồ và scikit-learn. Đây là kiểm tra công cụ và đầu vào. Các câu hỏi nghiên cứu sẽ có kết quả sau khi nhóm triển khai và chạy quy trình phân tích.
+Hiện tại các notebook chỉ có đề mục Markdown. Kiểm tra môi trường đã đọc được CSV, mở được trang danh sách tệp của Jupyter Notebook và chạy được một notebook tạm với pandas, biểu đồ và scikit-learn. Đây là kiểm tra công cụ và đầu vào. Các câu hỏi nghiên cứu sẽ có kết quả sau khi nhóm triển khai và chạy quy trình phân tích.
 
 ## Làm việc bằng Git
 
