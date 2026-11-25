@@ -124,7 +124,7 @@ Với Q02, chốt nhãn nghiêm trọng dựa trên tài liệu mã hóa và xá
 
 ## 4. Luồng notebook và quy ước trình bày
 
-1. [Notebook 01](notebooks/01_collection_exploration.ipynb) ghi nguồn, quyền sử dụng, công trình liên quan, định nghĩa một dòng mỗi bảng, từ điển cột, số lượng/mẫu thiếu, khoảng thời gian và ngoại lệ. Kết phần khám phá bằng 3–5 quan sát, các quyết định tiền xử lý và đường dẫn đầu ra dùng chung.
+1. [Notebook 01](notebooks/01_collection_exploration.ipynb) ghi nguồn, quyền sử dụng, công trình liên quan, động cơ chọn dữ liệu và năm nhóm khám phá theo mục 3.2 của đề bài gồm tổng quan, cột định lượng, cột phân loại, dữ liệu thiếu và mối quan hệ. Kết phần khám phá bằng 3–5 quan sát, vấn đề chất lượng, kế hoạch tiền xử lý và mẫu hình giúp đặt câu hỏi. Sau đó làm sạch và tạo các bảng đầu ra dùng chung.
 2. [Notebook 02](notebooks/02_analysis.ipynb) là mục lục và nơi tổng kết. Q01, Q03, Q04, Q05 và Q06 có notebook riêng theo người phụ trách. [Notebook 03](notebooks/03_ml_question.ipynb) trình bày Q02. Mỗi notebook đã có sườn và cell kiểm tra đầu vào để bắt đầu. [Phân công và bảng bàn giao](PHAN_CONG.md)
 3. Để ghép bảng, kiểm tra khóa trùng và khóa thiếu trước. Ghi số dòng trước và sau, quy tắc xử lý khóa không khớp và quan hệ kỳ vọng, ví dụ `validate="many_to_one"` khi casualty nối với một phương tiện. Tổng hợp từng bảng con về cấp vụ trước khi kết hợp các chỉ số cấp vụ.
 4. Mỗi câu viết theo thứ tự câu hỏi và người dùng, mẫu, tiền xử lý, phương pháp, kết quả, giới hạn. Báo số dòng trước và sau từng bước lọc hoặc ghép. Mỗi câu có ít nhất hai hình khác mục đích, có tên trục, đơn vị, chú giải và phạm vi dữ liệu. Kết luận dùng số liệu và diễn giải thực tế.
