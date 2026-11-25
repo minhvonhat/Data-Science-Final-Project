@@ -74,7 +74,7 @@ if root.name == "notebooks":
 expected_keys = {
     "Accidents0515.csv": ["Accident_Index"],
     "Vehicles0515.csv": ["Accident_Index", "Vehicle_Reference"],
-    "Casualties0515.csv": ["Accident_Index", "Casualty_Reference"],
+    "Casualties0515.csv": ["Accident_Index", "Casualty_Reference", "Vehicle_Reference"],
 }
 
 for filename, keys in expected_keys.items():
@@ -125,10 +125,10 @@ Với Q02, chốt nhãn nghiêm trọng dựa trên tài liệu mã hóa và xá
 ## 4. Luồng notebook và quy ước trình bày
 
 1. [Notebook 01](notebooks/01_collection_exploration.ipynb) ghi nguồn, quyền sử dụng, công trình liên quan, định nghĩa một dòng mỗi bảng, từ điển cột, số lượng/mẫu thiếu, khoảng thời gian và ngoại lệ. Kết phần khám phá bằng 3–5 quan sát, các quyết định tiền xử lý và đường dẫn đầu ra dùng chung.
-2. [Notebook 02](notebooks/02_analysis.ipynb) trình bày Q01, Q03, Q04 và Q05–Q06 nếu có. Khi có nhiều người cùng sửa, chia notebook theo mã câu và cập nhật thứ tự chạy ở đây. [Notebook 03](notebooks/03_ml_question.ipynb) trình bày Q02.
+2. [Notebook 02](notebooks/02_analysis.ipynb) là mục lục và nơi tổng kết. Q01, Q03, Q04, Q05 và Q06 có notebook riêng theo người phụ trách. [Notebook 03](notebooks/03_ml_question.ipynb) trình bày Q02. Mỗi notebook đã có sườn và cell kiểm tra đầu vào để bắt đầu. [Phân công và bảng bàn giao](PHAN_CONG.md)
 3. Để ghép bảng, kiểm tra khóa trùng và khóa thiếu trước. Ghi số dòng trước và sau, quy tắc xử lý khóa không khớp và quan hệ kỳ vọng, ví dụ `validate="many_to_one"` khi casualty nối với một phương tiện. Tổng hợp từng bảng con về cấp vụ trước khi kết hợp các chỉ số cấp vụ.
 4. Mỗi câu viết theo thứ tự câu hỏi và người dùng, mẫu, tiền xử lý, phương pháp, kết quả, giới hạn. Báo số dòng trước và sau từng bước lọc hoặc ghép. Mỗi câu có ít nhất hai hình khác mục đích, có tên trục, đơn vị, chú giải và phạm vi dữ liệu. Kết luận dùng số liệu và diễn giải thực tế.
-5. Đặt import, đường dẫn và seed ở đầu. Đặt tên file, hàm và biến bằng `snake_case` cho phần nhóm tự tạo. Lưu dữ liệu sinh lại trong `data/processed/`. Khởi động lại kernel và chạy 01 → 02 → 03 từ đầu trước khi review. Giữ phần logic thực sự dùng chung trong `src/`.
+5. Đặt import, đường dẫn và seed ở đầu. Đặt tên file, hàm và biến bằng `snake_case` cho phần nhóm tự tạo. Lưu dữ liệu sinh lại trong `data/processed/`. Khởi động lại kernel, chạy notebook 01 để tạo dữ liệu, rồi chạy từng notebook câu hỏi trong mục lục trước khi review. Giữ phần logic thực sự dùng chung trong `src/`.
 
 ## 5. Làm việc bằng Git và chuẩn bị nộp
 
