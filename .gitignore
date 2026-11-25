@@ -227,3 +227,6 @@ __marimo__/
 !/data/raw/.gitkeep
 /data/processed/*
 !/data/processed/.gitkeep
+
+test.ipynb
+*.sh
