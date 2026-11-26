@@ -1,6 +1,6 @@
 # Hướng dẫn thực hiện đồ án CSC17104
 
-Dùng tài liệu này để thiết lập máy, nhận câu hỏi phụ trách, chạy notebook và chuẩn bị bản nộp. Các câu hỏi dưới đây là đề xuất để nhóm xác nhận sau khi kiểm tra dữ liệu và xin duyệt từ giảng viên. [Đề bài chính thức](CSC17104_2026_Final_Project.pdf)
+Dùng tài liệu này để thiết lập máy, nhận câu hỏi phụ trách, chạy notebook và chuẩn bị bản nộp. Mã câu, mục tiêu và lộ trình nghiên cứu được thống nhất theo [question.md](question.md). [Đề bài chính thức](CSC17104_2026_Final_Project.pdf)
 
 ## 1. Thiết lập ban đầu
 
@@ -49,11 +49,13 @@ Từ trang Kaggle của `silicon99/dft-accident-data`, tải ba tệp dưới đ
 | --- | --- | --- |
 | `data/raw/Accidents0515.csv` | Một vụ tai nạn | `Accident_Index` |
 | `data/raw/Vehicles0515.csv` | Một phương tiện liên quan trong một vụ | `Accident_Index` và `Vehicle_Reference` |
-| `data/raw/Casualties0515.csv` | Một người bị nạn trong một vụ | `Accident_Index` và `Casualty_Reference`. `Vehicle_Reference` dùng khi cần nối với bảng phương tiện. |
+| `data/raw/Casualties0515.csv` | Một người bị nạn trong một vụ | `Accident_Index`, `Vehicle_Reference` và `Casualty_Reference` với khóa đầy đủ. |
 
 Giữ CSV và ZIP lớn trên máy. Quy tắc `.gitignore` trong repo đã bỏ qua dữ liệu ở `data/raw/` và đầu ra sinh lại ở `data/processed/`. Kiểm tra sau khi tải bằng `git status --short --ignored -- data/raw/`. Ký hiệu `!!` cho biết dữ liệu đang được bỏ qua.
 
 Người phụ trách nguồn ghi phiên bản/ngày tải, tên nguồn phát hành, giấy phép và ghi công hiển thị trên phiên bản Kaggle đã dùng. Đối chiếu ngữ nghĩa các cột, mã phân loại và phạm vi bao phủ với tài liệu STATS19 của Department for Transport. Giấy phép trong repo áp dụng cho phần do nhóm có quyền cấp phép. Dữ liệu gốc tuân theo điều khoản của nguồn phát hành. [Nguồn Kaggle](https://www.kaggle.com/datasets/silicon99/dft-accident-data) · [Tài liệu và dữ liệu an toàn đường bộ DfT](https://www.gov.uk/government/statistical-data-sets/road-safety-open-data) · [Creative Commons CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)
+
+Nếu bộ tải kèm các bảng tra mã `contextCSVs`, đặt các CSV đó trong `data/contextCSVs/`. Dùng đúng bảng mã theo phiên bản nguồn. Các CSV tra mã và bốn bảng xử lý được giữ cục bộ.
 
 ### Mở notebook và kiểm tra đầu vào
 
@@ -82,12 +84,17 @@ for filename, keys in expected_keys.items():
     if not csv_path.is_file():
         raise FileNotFoundError(f"Thiếu tệp {csv_path}")
 
-    # Xem mẫu nhỏ để kiểm tra schema. Giữ mã vụ tai nạn dưới dạng chuỗi.
-    sample = pd.read_csv(csv_path, nrows=5, dtype={"Accident_Index": "string"})
-    missing = set(keys) - set(sample.columns)
+    columns = pd.read_csv(csv_path, nrows=0, index_col=False).columns
+    missing = set(keys) - set(columns)
     if missing:
         raise ValueError(f"{filename} thiếu cột {sorted(missing)}")
-    print(filename, sample.shape[1], "cột")
+
+    # Chỉ đọc khóa theo tên vì bản lịch sử có dòng thêm trường cuối.
+    sample = pd.read_csv(
+        csv_path, nrows=5, usecols=keys, index_col=False,
+        dtype={"Accident_Index": "string"},
+    )
+    print(filename, len(columns), "cột có tên")
     print(sample[keys].head(2))
 ```
 
@@ -95,37 +102,35 @@ for filename, keys in expected_keys.items():
 
 ## 2. Thành viên và phân công
 
-Điền họ tên và MSSV trước khi nộp. Nhóm hai người làm Q01–Q04. Nhóm ba người thêm Q05–Q06. Mỗi người phụ trách hai câu và review phần của người khác.
+Điền họ tên và MSSV trước khi nộp. Mỗi người phụ trách hai câu và review phần của người khác.
 
 | Vai trò | Họ tên và MSSV | Câu phụ trách | Trách nhiệm chung |
 | --- | --- | --- | --- |
-| A | Nhóm điền | Q01, Q02 | Điều phối tiến độ, chốt cách chia tập và bảng đánh giá ML, kiểm tra khả năng tái lập. |
-| B | Nhóm điền | Q03, Q04 | Xác minh nguồn và quyền sử dụng, xây dựng từ điển dữ liệu, kiểm tra khóa và phép ghép. |
-| C, nếu có | Nhóm điền | Q05, Q06 | Kiểm tra độ phủ dữ liệu, chuẩn hóa biểu đồ và điều phối slide. |
+| A | Nhóm điền | Q1, Q6 | Xu hướng KSI, mô hình điều phối cấp cứu và đánh giá theo thời gian. |
+| B | Nhóm điền | Q2, Q3 | Kiểm tra nguồn, chuẩn hóa và ghép dữ liệu, phân tích nhóm dễ tổn thương và chiếu sáng. |
+| C | Nhóm điền | Q4, Q5 | Phân tích mặt đường, trượt/lật và IMD. Kiểm tra tích hợp và điều phối slide. |
 
-Nếu có hai người, B điều phối slide và A rà soát bản nộp cuối. Chủ câu thực hiện notebook, chuẩn bị hình minh họa, ghi cỡ mẫu và kết luận, mở pull request. Cả nhóm thống nhất cách ghép và quy tắc làm sạch trước khi chia việc.
+## 3. Câu hỏi và bước chuẩn bị dữ liệu
 
-## 3. Câu hỏi và thiết kế đề xuất
-
-Mỗi câu phân tích dùng tối thiểu hai tiêu chí độ sâu trong đề bài. Cả nhóm cần phủ tối thiểu bốn trong D1–D6. Các câu dưới đây dùng D1–D6 theo nghĩa ghi trong đề bài. Báo rõ đơn vị quan sát, mẫu số và giới hạn trước khi so sánh. Số vụ trong dữ liệu mô tả các vụ được ghi nhận. Muốn ước tính rủi ro trên mỗi chuyến đi cần thêm dữ liệu về mức độ tham gia giao thông.
-
-| Mã | Câu hỏi và người dùng | Phương pháp dự kiến |
+| Mã | Chủ đề | Dữ liệu đầu vào từ notebook 01 |
 | --- | --- | --- |
-| Q01 | Tỷ lệ vụ nghiêm trọng trong số vụ được ghi nhận thay đổi thế nào theo tháng và năm, sau khi giữ cố định cơ cấu loại đường? Kết quả giúp người lập kế hoạch an toàn giao thông thấy biến động theo thời gian. | **D2, D3, D4.** Chuẩn hóa ngày, tính tỷ lệ theo tháng và loại đường. So chuỗi tỷ lệ chung với chuỗi có trọng số loại đường cố định. Vẽ chuỗi thời gian và mức thay đổi theo loại đường. |
-| Q02 | Với các trường có thể biết khi ghi nhận ban đầu, mô hình nhận diện vụ nghiêm trọng trên giai đoạn mới tốt hơn mốc đơn giản bao nhiêu? Người dùng là nhóm phân tích an toàn giao thông. | **ML.** Phân loại ở cấp vụ bằng DummyClassifier, LogisticRegression và RandomForestClassifier. Chia theo thời gian và trình bày average precision, sai số theo nhóm cùng các giới hạn. |
-| Q03 | Tỷ lệ người bị nạn có thương tích nghiêm trọng khác nhau thế nào theo nhóm phương tiện trong cùng nhóm tuổi? Người đọc dùng kết quả để hiểu khác biệt giữa các nhóm trong hồ sơ đã ghi nhận. | **D1, D4, D5.** Ghép casualty với phương tiện theo khóa ghép sau khi kiểm tra quan hệ nhiều-một. Tính tỷ lệ và khoảng tin cậy bootstrap theo cụm vụ. Vẽ tỷ lệ theo nhóm và chênh lệch kèm khoảng tin cậy. |
-| Q04 | Chênh lệch tỷ lệ vụ nghiêm trọng giữa các nhóm điều kiện ánh sáng có còn khi so trong cùng loại đường, và nhạy đến đâu với mã thiếu hoặc không rõ? | **D3, D4, D6.** Tạo biến phân loại mức độ nghiêm trọng sau khi đối chiếu mã, so theo tầng loại đường và lặp với quy tắc xử lý mã không rõ khác. Vẽ tỷ lệ theo tầng và thay đổi giữa hai kịch bản. |
-| Q05 | Độ phủ khi ghép người bị nạn với phương tiện thay đổi ra sao theo năm và loại người tham gia giao thông? Người phân tích dùng kết quả để đánh giá sai lệch khi chọn mẫu ghép. | **D1, D2, D6.** Đếm khóa ghép được và thiếu theo năm và nhóm. So kết quả khi xử lý các trường hợp thiếu khóa theo hai quy tắc có giải thích. |
-| Q06 | Trong các vụ ở điều kiện đường tương tự, số người bị nạn trên mỗi vụ thay đổi thế nào theo số phương tiện liên quan? | **D1, D3, D4, D5.** Tổng hợp phương tiện và người bị nạn về cấp vụ trước khi ghép. Báo phân phối, chênh lệch theo tầng và độ bất định. |
+| Q1 | Xu hướng KSI và loại đường, theo tốc độ và đô thị/nông thôn | `accident_counts.csv` |
+| Q2 | Nhóm dễ tổn thương, điểm va chạm và thao tác lái | `casualty_vehicle.csv`, `accidents_clean.csv` |
+| Q3 | Chiếu sáng, giờ khuya và chênh lệch KSI | `accidents_clean.csv` |
+| Q4 | Mặt đường, trượt/lật và phân vùng theo vĩ độ | `vehicle_accident.csv`, `accidents_clean.csv` |
+| Q5 | Thương vong và IMD giai đoạn 2011–2015 | `accident_counts.csv`, `vehicle_accident.csv`, `casualty_vehicle.csv` |
+| Q6 | Dự đoán KSI khi nhận tin báo 999 | `accidents_clean.csv` |
 
-Với Q02, chốt nhãn nghiêm trọng dựa trên tài liệu mã hóa và xác định thời điểm từng đặc trưng có sẵn. Giữ `Accident_Index` làm khóa, dùng ngày để chia tập, bỏ nhãn, mức độ thương tích và các biến tổng hợp hậu quả khỏi đặc trưng. Dùng các năm đầu để huấn luyện và các năm cuối để kiểm tra, sau khi đã xác minh phạm vi năm. Dùng cross-validation theo thời gian trên train. Nếu có nhiều dòng trên một vụ, đưa về một dòng mỗi vụ trước khi chia hoặc giữ mọi dòng cùng vụ trong cùng tập.
+Chạy lại notebook 01 sau khi cập nhật repo để tạo schema mới. Nhãn `is_ksi` lấy từ mức độ vụ 1/2 (KSI) và 3 (Slight); mã khác để thiếu. Với Q6, dùng 2005–2013 cho train, kiểm định tiến thời gian trong train và giữ 2014–2015 cho test. Chỉ dùng đặc trưng có căn cứ sẵn có lúc nhận cuộc gọi.
 
-Đặt bước điền thiếu và mã hóa bên trong `Pipeline`, dùng cùng các tập cho baseline và hai mô hình, chọn metric và ngưỡng bằng validation rồi đánh giá test một lượt. Với lớp nghiêm trọng hiếm, dùng average precision để tóm tắt đường precision–recall, kèm precision và recall ở ngưỡng đã chốt. Vẽ đường precision–recall và biểu đồ sai sót theo nhóm, giải thích mô hình bằng permutation importance trên validation. Ghi rõ điều kiện thực tế để mô hình có thể sử dụng được.
+Q5 kiểm tra riêng IMD tại nơi xảy ra vụ, nơi cư trú của tài xế và nơi cư trú của người bị nạn. Bản Casualties đã kiểm tra thiếu cột IMD có tên trong tiêu đề. Một số dòng có thêm trường cuối nhưng trường đó chưa được xác minh. Notebook 01 giữ trống IMD và notebook Q5 báo độ phủ. Cần nguồn bổ sung đã xác minh nếu thiếu chỉ số cần phân tích.
+
+Các tỷ lệ mô tả các vụ được ghi nhận và có mẫu số hợp lệ. Xem tiêu chí, giả thuyết và lộ trình đầy đủ trong [question.md](question.md).
 
 ## 4. Luồng notebook và quy ước trình bày
 
 1. [Notebook 01](notebooks/01_collection_exploration.ipynb) ghi nguồn, quyền sử dụng, công trình liên quan, động cơ chọn dữ liệu và năm nhóm khám phá theo mục 3.2 của đề bài gồm tổng quan, cột định lượng, cột phân loại, dữ liệu thiếu và mối quan hệ. Kết phần khám phá bằng 3–5 quan sát, vấn đề chất lượng, kế hoạch tiền xử lý và mẫu hình giúp đặt câu hỏi. Sau đó làm sạch và tạo các bảng đầu ra dùng chung.
-2. [Notebook 02](notebooks/02_analysis.ipynb) là mục lục và nơi tổng kết. Q01, Q03, Q04, Q05 và Q06 có notebook riêng theo người phụ trách. [Notebook 03](notebooks/03_ml_question.ipynb) trình bày Q02. Mỗi notebook đã có sườn và cell kiểm tra đầu vào để bắt đầu. [Phân công và bảng bàn giao](PHAN_CONG.md)
+2. [Notebook 02](notebooks/02_analysis.ipynb) là mục lục và nơi tổng kết. Q1–Q5 có notebook phân tích riêng. [Notebook 03](notebooks/03_ml_question.ipynb) trình bày Q6. Một số tên tệp giữ số cũ theo `question.md`, nên dùng mã câu trong tiêu đề hoặc mục lục. [Phân công và bảng bàn giao](PHAN_CONG.md)
 3. Để ghép bảng, kiểm tra khóa trùng và khóa thiếu trước. Ghi số dòng trước và sau, quy tắc xử lý khóa không khớp và quan hệ kỳ vọng, ví dụ `validate="many_to_one"` khi casualty nối với một phương tiện. Tổng hợp từng bảng con về cấp vụ trước khi kết hợp các chỉ số cấp vụ.
 4. Mỗi câu viết theo thứ tự câu hỏi và người dùng, mẫu, tiền xử lý, phương pháp, kết quả, giới hạn. Báo số dòng trước và sau từng bước lọc hoặc ghép. Mỗi câu có ít nhất hai hình khác mục đích, có tên trục, đơn vị, chú giải và phạm vi dữ liệu. Kết luận dùng số liệu và diễn giải thực tế.
 5. Đặt import, đường dẫn và seed ở đầu. Đặt tên file, hàm và biến bằng `snake_case` cho phần nhóm tự tạo. Lưu dữ liệu sinh lại trong `data/processed/`. Khởi động lại kernel, chạy notebook 01 để tạo dữ liệu, rồi chạy từng notebook câu hỏi trong mục lục trước khi review. Giữ phần logic thực sự dùng chung trong `src/`.
@@ -137,7 +142,7 @@ Mỗi chủ câu tạo một nhánh từ `vnhatminh` sau khi cập nhật. Xem `
 ```bash
 git switch vnhatminh
 git pull --ff-only origin vnhatminh
-git switch -c q03-phan-tich-nguoi-bi-nan
+git switch -c feat/b-q02-q03
 ```
 
 Sau khi hoàn thành, commit notebook và mã liên quan, push nhánh công việc rồi mở pull request vào `vnhatminh`. Ghi đầu vào, cách chạy, số dòng thay đổi và ảnh hoặc bảng chính. Người review chạy lại phần liên quan. Cả nhóm duyệt bản tích hợp trước khi đưa lên `main`.
