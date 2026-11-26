@@ -7,3 +7,4 @@
 | 2026-11-25 | OpenAI Codex | Tách tài liệu dự án, cập nhật nguồn dữ liệu và kế hoạch cho bộ tai nạn giao thông, bổ sung giấy phép theo yêu cầu. | Dùng để tổ chức repo, thống nhất cài đặt và đề xuất đầu việc. Nhóm xác nhận dữ liệu, tự triển khai phân tích và viết kết luận. |
 | 2026-11-25 | OpenAI Codex | Tạo sườn notebook theo phân công và hướng dẫn kiểm tra đầu vào. | Dùng các đề mục và cell đọc mẫu để bắt đầu. Mỗi thành viên tự thực hiện và giải thích phân tích của mình. |
 | 2026-11-25 | OpenAI Codex | Đối chiếu sườn khám phá dữ liệu với mục 3.2 của đề bài. | Bổ sung các đề mục và gợi ý kiểm tra trong notebook 01. Nhóm chạy kiểm tra và tự viết nhận xét trên dữ liệu thật. |
+| 2026-11-27 | OpenAI Codex | Đồng bộ bộ câu hỏi mới với notebook, mã chuẩn bị dữ liệu và phân công. | Dùng mã đọc, kiểm tra và ghép bảng cùng sườn câu hỏi. Các thành viên tự thực hiện phân tích và đánh giá trên dữ liệu thật. |
